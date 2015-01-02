@@ -10,7 +10,7 @@ ifndef SYSCONFDIR
 endif
 
 CFLAGS+=-Wall -Wshadow -Wpointer-arith -Wcast-qual -Wsign-compare
-CFLAGS+=-g
+CFLAGS+=-O2
 CFLAGS+=-std=gnu99
 CFLAGS+=-pedantic
 CPPFLAGS+=-DSYSCONFDIR=\"$(SYSCONFDIR)\"
@@ -18,6 +18,7 @@ CPPFLAGS+=-DVERSION=\"${GIT_VERSION}\"
 CFLAGS+=-Iinclude
 LIBS+=-lconfuse
 LIBS+=-lyajl
+LIBS+=-lmpdclient
 
 VERSION:=$(shell git describe --tags --abbrev=0)
 GIT_VERSION:="$(shell git describe --tags --always) ($(shell git log --pretty=format:%cd --date=short -n1))"

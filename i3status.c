@@ -407,6 +407,17 @@ int main(int argc, char *argv[]) {
                 CFG_END()
         };
 
+        cfg_opt_t mpd_opts[] = {
+                CFG_STR("format_up", "%title", CFGF_NONE),
+                CFG_STR("format_down", " - ", CFGF_NONE),
+                CFG_STR("host", "127.0.0.1", CFGF_NONE),
+                CFG_INT("port", 6600, CFGF_NONE),
+                CFG_CUSTOM_ALIGN_OPT,
+                CFG_CUSTOM_COLOR_OPTS,
+                CFG_CUSTOM_MIN_WIDTH_OPT,
+                CFG_END()
+        };
+
         cfg_opt_t opts[] = {
                 CFG_STR_LIST("order", "{}", CFGF_NONE),
                 CFG_SEC("general", general_opts, CFGF_NONE),
@@ -424,6 +435,7 @@ int main(int argc, char *argv[]) {
                 CFG_SEC("ddate", ddate_opts, CFGF_NONE),
                 CFG_SEC("load", load_opts, CFGF_NONE),
                 CFG_SEC("cpu_usage", usage_opts, CFGF_NONE),
+                CFG_SEC("mpd", mpd_opts, CFGF_NONE),
                 CFG_END()
         };
 
@@ -668,6 +680,16 @@ int main(int argc, char *argv[]) {
                         CASE_SEC("cpu_usage") {
                                 SEC_OPEN_MAP("cpu_usage");
                                 print_cpu_usage(json_gen, buffer, cfg_getstr(sec, "format"));
+                                SEC_CLOSE_MAP;
+                        }
+
+                        CASE_SEC("mpd") {
+                                SEC_OPEN_MAP("mpd");
+                                print_mpd(json_gen, buffer,
+                                          cfg_getstr(sec, "format_up"),
+                                          cfg_getstr(sec, "format_down"),
+                                          cfg_getstr(sec, "host"),
+                                          cfg_getint(sec, "port"));
                                 SEC_CLOSE_MAP;
                         }
                 }

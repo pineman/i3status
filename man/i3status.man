@@ -441,6 +441,25 @@ volume master {
 }
 -------------------------------------------------------------
 
+=== MPD
+
+Outputs the current song played on mpd.
+
+*Example order*: +mpd+
+
+*Example format_up*: +%path %title %artist %album %date %track %albart %comment %composer %genre+
+
+*Example configuration*:
+-------------------------------------------------------------
+mpd {
+    format_up = "%title - %album - %artist"
+    format_down = " - "
+    host = "127.0.0.1"
+    port = 6600
+}
+-------------------------------------------------------------
+
+
 == Universal module options
 
 When using the i3bar output format, there are a few additional options that
