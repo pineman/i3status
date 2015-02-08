@@ -92,7 +92,7 @@ struct {
  */
 void print_mpd(yajl_gen json_gen, char* buffer,
 			   const char* format, const char* format_off,
-			   const char* host, int port)
+			   const char* host, int port, const char* password)
 {
 	char *outwalk = buffer;
 
@@ -109,7 +109,9 @@ void print_mpd(yajl_gen json_gen, char* buffer,
 	if (co == 0)
 	{
 		co = mpd_connection_new(host, port, 0);
-		int err = mpd_connection_get_error(co);
+		if (co != 0 && password != 0 && *password != 0) // if password not empty
+			mpd_run_password(co, password);
+		int		err = mpd_connection_get_error(co);
 		if (co == 0 || err != MPD_ERROR_SUCCESS)
 		{
 			START_COLOR("color_bad");
