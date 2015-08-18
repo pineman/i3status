@@ -44,12 +44,8 @@ CFLAGS+=-I/usr/local/include/
 LDFLAGS+=-L/usr/local/lib/
 endif
 
-ifeq ($(OS),OpenBSD)
-LIBS+=-lossaudio
-endif
-
-ifeq ($(OS), NetBSD)
-LIBS+= -lprop
+ifeq ($(OS),NetBSD)
+LIBS+=-lprop
 endif
 
 # This probably applies for any pkgsrc based system
@@ -72,6 +68,11 @@ CFLAGS += -idirafter yajl-fallback
 
 OBJS:=$(wildcard src/*.c *.c)
 OBJS:=$(OBJS:.c=.o)
+
+ifeq ($(OS),OpenBSD)
+OBJS:=$(filter-out src/pulse.o, $(OBJS))
+LIBS:=$(filter-out -lpulse, $(LIBS)) -lpthread
+endif
 
 src/%.o: src/%.c include/i3status.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<

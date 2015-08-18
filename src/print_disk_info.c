@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <sys/types.h>
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || (__OpenBSD__) || defined(__DragonFly__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || (__OpenBSD__) || defined(__DragonFly__) || defined(__APPLE__)
 #include <sys/param.h>
 #include <sys/mount.h>
 #else
@@ -59,7 +59,7 @@ static int print_bytes_human(char *outwalk, uint64_t bytes, const char *prefix_t
  * Determines whether remaining bytes are below given threshold.
  *
  */
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__OpenBSD__) || defined(__DragonFly__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__APPLE__)
 static bool below_threshold(struct statfs buf, const char *prefix_type, const char *threshold_type, const double low_threshold) {
 #else
 static bool below_threshold(struct statvfs buf, const char *prefix_type, const char *threshold_type, const double low_threshold) {
@@ -116,7 +116,7 @@ void print_disk_info(yajl_gen json_gen, char *buffer, const char *path, const ch
 
     INSTANCE(path);
 
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__OpenBSD__) || defined(__DragonFly__)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(__APPLE__)
     struct statfs buf;
 
     if (statfs(path, &buf) == -1)
@@ -124,10 +124,11 @@ void print_disk_info(yajl_gen json_gen, char *buffer, const char *path, const ch
 #else
     struct statvfs buf;
 
-    if (statvfs(path, &buf) == -1)
-        return;
-
-    if (format_not_mounted != NULL) {
+    if (statvfs(path, &buf) == -1) {
+        /* If statvfs errors, e.g., due to the path not existing,
+         * we use the format for a not mounted device. */
+        format = format_not_mounted;
+    } else if (format_not_mounted != NULL) {
         FILE *mntentfile = setmntent("/etc/mtab", "r");
         struct mntent *m;
         bool found = false;
