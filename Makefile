@@ -22,6 +22,7 @@ CFLAGS+=-Iinclude
 LIBS+=-lconfuse
 LIBS+=-lyajl
 LIBS+=-lpulse
+LIBS+=-lm
 LIBS+=-lmpdclient
 
 VERSION:=$(shell git describe --tags --abbrev=0)
@@ -31,7 +32,8 @@ OS:=$(shell uname)
 ifeq ($(OS),Linux)
 CPPFLAGS+=-DLINUX
 CPPFLAGS+=-D_GNU_SOURCE
-LIBS+=-liw
+CFLAGS += $(shell pkg-config --cflags libnl-genl-3.0)
+LIBS += $(shell pkg-config --libs libnl-genl-3.0)
 LIBS+=-lasound
 endif
 
