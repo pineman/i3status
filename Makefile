@@ -23,6 +23,7 @@ LIBS+=-lconfuse
 LIBS+=-lyajl
 LIBS+=-lpulse
 LIBS+=-lm
+LIBS+=-lpthread
 LIBS+=-lmpdclient
 
 VERSION:=$(shell git describe --tags --abbrev=0)
@@ -73,7 +74,7 @@ OBJS:=$(OBJS:.c=.o)
 
 ifeq ($(OS),OpenBSD)
 OBJS:=$(filter-out src/pulse.o, $(OBJS))
-LIBS:=$(filter-out -lpulse, $(LIBS)) -lpthread
+LIBS:=$(filter-out -lpulse, $(LIBS))
 endif
 
 src/%.o: src/%.c include/i3status.h
