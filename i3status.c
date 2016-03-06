@@ -464,6 +464,8 @@ int main(int argc, char *argv[]) {
         CFG_CUSTOM_ALIGN_OPT,
         CFG_CUSTOM_COLOR_OPTS,
         CFG_CUSTOM_MIN_WIDTH_OPT,
+        CFG_CUSTOM_SEPARATOR_OPT,
+        CFG_CUSTOM_SEP_BLOCK_WIDTH_OPT,
         CFG_END()};
 
     cfg_opt_t opts[] = {
