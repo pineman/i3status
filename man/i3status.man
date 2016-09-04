@@ -17,10 +17,10 @@ i3status [-c configfile] [-h] [-v]
 Specifies an alternate configuration file path. By default, i3status looks for
 configuration files in the following order:
 
-1. ~/.i3status.conf
-2. ~/.config/i3status/config (or $XDG_CONFIG_HOME/i3status/config if set)
-3. /etc/i3status.conf
-4. /etc/xdg/i3status/config (or $XDG_CONFIG_DIRS/i3status/config if set)
+1. ~/.config/i3status/config (or $XDG_CONFIG_HOME/i3status/config if set)
+2. /etc/xdg/i3status/config (or $XDG_CONFIG_DIRS/i3status/config if set)
+3. ~/.i3status.conf
+4. /etc/i3status.conf
 
 == DESCRIPTION
 
@@ -249,9 +249,7 @@ is assumed to be "percentage_avail" and low_threshold to be set to 0, which
 implies no coloring at all.
 
 You can define a different format with the option "format_not_mounted"
-which is used if the path does not exist or is not a mount point. So you can just empty
-the output for the given path with adding +format_not_mounted=""+
-to the config section.
+which is used if the path does not exist or is not a mount point. Defaults to "".
 
 *Example order*: +disk /mnt/usbstick+
 
@@ -338,6 +336,10 @@ colored red. The low_threshold type can be of threshold_type "time" or
 "percentage". So, if you configure low_threshold to 10 and threshold_type to
 "time", and your battery lasts another 9 minutes, it will be colored red.
 
+To show an aggregate of all batteries in the system, use "all" as the number. In
+this case (for Linux), the /sys path must contain the "%d" sequence. Otherwise,
+the number indicates the battery index as reported in /sys.
+
 Optionally custom strings including any UTF-8 symbols can be used for different
 battery states. This makes it possible to display individual symbols
 for each state (charging, discharging, unknown, full)
@@ -345,7 +347,9 @@ Of course it will also work with special iconic fonts, such as FontAwesome.
 If any of these special status strings are omitted, the default (CHR, BAT, UNK,
 FULL) is used.
 
-*Example order*: +battery 0+
+*Example order (for the first battery)*: +battery 0+
+
+*Example order (aggregate of all batteries)*: +battery all+
 
 *Example format*: +%status %remaining (%emptytime %consumption)+
 
@@ -363,7 +367,9 @@ FULL) is used.
 
 *Example threshold_type*: +time+
 
-*Example path*: +/sys/class/power_supply/CMB1/uevent+
+*Example path (%d replaced by title number)*: +/sys/class/power_supply/CMB%d/uevent+
+
+*Example path (ignoring the number)*: +/sys/class/power_supply/CMB1/uevent+
 
 === CPU-Temperature
 
@@ -381,11 +387,24 @@ specified thermal zone is getting too hot. Defaults to 75 degrees C.
 
 === CPU Usage
 
-Gets the percentual CPU usage from +/proc/stat+ (Linux) or +sysctl(3)+ (FreeBSD/OpenBSD).
+Gets the percentual CPU usage from +/proc/stat+ (Linux) or +sysctl(3)+
+(FreeBSD/OpenBSD).
+
+It is possible to define a max_threshold that will color the load
+value red in case the CPU average over the last interval is getting
+higher than the configured threshold. Defaults to 95.
+
+It is possible to define a degraded_threshold that will color the load
+value yellow in case the CPU average over the last interval is getting
+higher than the configured threshold.  Defaults to 90.
 
 *Example order*: +cpu_usage+
 
 *Example format*: +%usage+
+
+*Example max_threshold*: +75+
+
+*Example degraded_threshold*: +25+
 
 === Load
 
@@ -433,9 +452,10 @@ If you would like to use markup in this section, there is a separate
 
 *Example configuration (markup)*:
 -------------------------------------------------------------
-tztime time {
+tztime berlin {
 	format = "<span foreground='#ffffff'>time:</span> %time"
 	format_time = "%H:%M %Z"
+	timezone = "Europe/Berlin"
 }
 -------------------------------------------------------------
 

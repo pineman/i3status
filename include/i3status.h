@@ -168,11 +168,6 @@ char *pct_mark;
         }                                                                                      \
     } while (0)
 
-typedef enum { CS_DISCHARGING,
-               CS_CHARGING,
-               CS_UNKNOWN,
-               CS_FULL } charging_status_t;
-
 /*
  * The "min_width" module option may either be defined as a string or a number.
  */
@@ -202,7 +197,8 @@ void set_timezone(const char *tz);
 /* src/first_network_device.c */
 typedef enum {
     NET_TYPE_WIRELESS = 0,
-    NET_TYPE_ETHERNET = 1
+    NET_TYPE_ETHERNET = 1,
+    NET_TYPE_OTHER = 2
 } net_type_t;
 const char *first_eth_interface(const net_type_t type);
 
@@ -216,7 +212,7 @@ void print_wireless_info(yajl_gen json_gen, char *buffer, const char *interface,
 void print_run_watch(yajl_gen json_gen, char *buffer, const char *title, const char *pidfile, const char *format, const char *format_down);
 void print_path_exists(yajl_gen json_gen, char *buffer, const char *title, const char *path, const char *format, const char *format_down);
 void print_cpu_temperature_info(yajl_gen json_gen, char *buffer, int zone, const char *path, const char *format, int);
-void print_cpu_usage(yajl_gen json_gen, char *buffer, const char *format);
+void print_cpu_usage(yajl_gen json_gen, char *buffer, const char *format, const float max_threshold, const float degraded_threshold);
 void print_eth_info(yajl_gen json_gen, char *buffer, const char *interface, const char *format_up, const char *format_down);
 void print_load(yajl_gen json_gen, char *buffer, const char *format, const float max_threshold);
 void print_volume(yajl_gen json_gen, char *buffer, const char *fmt, const char *fmt_muted, const char *device, const char *mixer, int mixer_idx);

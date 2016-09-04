@@ -54,6 +54,13 @@
 #include <netinet/if_ether.h>
 #include <net80211/ieee80211.h>
 #include <net80211/ieee80211_ioctl.h>
+#define IW_ESSID_MAX_SIZE IEEE80211_NWID_LEN
+#endif
+
+#ifdef __NetBSD__
+#include <sys/types.h>
+#include <net80211/ieee80211.h>
+#define IW_ESSID_MAX_SIZE IEEE80211_NWID_LEN
 #endif
 
 #include "i3status.h"
@@ -68,7 +75,9 @@
 
 typedef struct {
     int flags;
+#ifdef IW_ESSID_MAX_SIZE
     char essid[IW_ESSID_MAX_SIZE + 1];
+#endif
 #ifdef LINUX
     uint8_t bssid[ETH_ALEN];
 #endif
@@ -423,7 +432,7 @@ error1:
         else
             len = IEEE80211_NWID_LEN + 1;
 
-        strncpy(&info->essid[0], nwid.i_nwid, len);
+        strncpy(&info->essid[0], (char *)nwid.i_nwid, len);
         info->essid[IW_ESSID_MAX_SIZE] = '\0';
         info->flags |= WIRELESS_INFO_FLAG_HAS_ESSID;
     }
@@ -522,9 +531,11 @@ void print_wireless_info(yajl_gen json_gen, char *buffer, const char *interface,
         }
 
         if (BEGINS_WITH(walk + 1, "essid")) {
+#ifdef IW_ESSID_MAX_SIZE
             if (info.flags & WIRELESS_INFO_FLAG_HAS_ESSID)
                 maybe_escape_markup(info.essid, &outwalk);
             else
+#endif
                 *(outwalk++) = '?';
             walk += strlen("essid");
         }
