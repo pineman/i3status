@@ -104,7 +104,7 @@ static void *scalloc(size_t size) {
     return result;
 }
 
-static char *sstrdup(const char *str) {
+char *sstrdup(const char *str) {
     char *result = strdup(str);
     exit_if_null(result, "Error: out of memory (strdup())\n");
     return result;
@@ -385,6 +385,7 @@ int main(int argc, char *argv[]) {
     cfg_opt_t tztime_opts[] = {
         CFG_STR("format", "%Y-%m-%d %H:%M:%S %Z", CFGF_NONE),
         CFG_STR("timezone", "", CFGF_NONE),
+        CFG_STR("locale", "", CFGF_NONE),
         CFG_STR("format_time", NULL, CFGF_NONE),
         CFG_CUSTOM_ALIGN_OPT,
         CFG_CUSTOM_MIN_WIDTH_OPT,
@@ -708,13 +709,13 @@ int main(int argc, char *argv[]) {
 
             CASE_SEC("time") {
                 SEC_OPEN_MAP("time");
-                print_time(json_gen, buffer, NULL, cfg_getstr(sec, "format"), NULL, NULL, tv.tv_sec);
+                print_time(json_gen, buffer, NULL, cfg_getstr(sec, "format"), NULL, NULL, NULL, tv.tv_sec);
                 SEC_CLOSE_MAP;
             }
 
             CASE_SEC_TITLE("tztime") {
                 SEC_OPEN_MAP("tztime");
-                print_time(json_gen, buffer, title, cfg_getstr(sec, "format"), cfg_getstr(sec, "timezone"), cfg_getstr(sec, "format_time"), tv.tv_sec);
+                print_time(json_gen, buffer, title, cfg_getstr(sec, "format"), cfg_getstr(sec, "timezone"), cfg_getstr(sec, "locale"), cfg_getstr(sec, "format_time"), tv.tv_sec);
                 SEC_CLOSE_MAP;
             }
 
