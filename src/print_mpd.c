@@ -123,7 +123,7 @@ void print_mpd(yajl_gen json_gen, char* buffer,
 
     status = mpd_recv_status(co);
     if (!status || mpd_status_get_error(status)) {
-        START_COLOR("color_bad");
+        START_COLOR("color_degraded");
         outwalk += sprintf(buffer, "%s", format_off);
 #ifdef DEBUG
         fprintf(stderr, "mdp: no status\n");
@@ -133,7 +133,7 @@ void print_mpd(yajl_gen json_gen, char* buffer,
     mpd_response_next(co);
     song = mpd_recv_song(co);
     if (!song) {
-        START_COLOR("color_bad");
+        START_COLOR("color_degraded");
         outwalk += sprintf(buffer, "%s", format_off);
 #ifdef DEBUG
         fprintf(stderr, "mdp: no song\n");
@@ -144,7 +144,7 @@ void print_mpd(yajl_gen json_gen, char* buffer,
     if (mpd_status_get_state(status) == MPD_STATE_PLAY)
         START_COLOR("color_good");
     else
-        START_COLOR("color_bad");
+        START_COLOR("color_degraded");
 
     const char* f = format;
     char* b = buffer;

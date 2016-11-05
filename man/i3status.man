@@ -535,7 +535,12 @@ volume master {
 
 === MPD
 
-Outputs the current song played on mpd.
+Outputs the current song played on mpd. If the connection to the mpd
+server fails, format_down and color_bad is used. If there is no
+current song, then format_down and color_degraded is used. If there is
+a current song, format_up is used, color_degraded if paused,
+color_good if playing. (Note: you can override color_bad, color_good,
+color_degraded per section)
 
 *Example order*: +mpd+
 
@@ -548,7 +553,7 @@ mpd {
     format_down = " - "
     host = "127.0.0.1"
     port = 6600
-    # password = "myMPDPassword"
+    password = "myMPDPassword"
 }
 -------------------------------------------------------------
 
