@@ -77,7 +77,7 @@ CFLAGS+=$(EXTRA_CFLAGS)
 # YAJL_MAJOR from that file to decide which code path should be used.
 CFLAGS += -idirafter yajl-fallback
 
-OBJS:=$(wildcard src/*.c *.c)
+OBJS:=$(sort $(wildcard src/*.c *.c))
 OBJS:=$(OBJS:.c=.o)
 
 ifeq ($(OS),OpenBSD)
@@ -129,6 +129,6 @@ release:
 	cp -r include i3status-${VERSION}
 	cp -r yajl-fallback i3status-${VERSION}
 	cp -r contrib i3status-${VERSION}
-	sed -e 's/^I3STATUS_VERSION:=\(.*\)/I3STATUS_VERSION=${I3STATUS_VERSION}/g;s/^VERSION:=\(.*\)/VERSION=${VERSION}/g' Makefile > i3status-${VERSION}/Makefile
+	echo ${I3STATUS_VERSION} > i3status-${VERSION}/I3STATUS_VERSION
 	tar cjf i3status-${VERSION}.tar.bz2 i3status-${VERSION}
 	rm -rf i3status-${VERSION}

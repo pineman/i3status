@@ -1,7 +1,7 @@
 i3status(1)
 ===========
 Michael Stapelberg <michael@i3wm.org>
-v2.10, January 2016
+v2.11, January 2017
 
 == NAME
 
@@ -331,7 +331,7 @@ If you want the battery percentage to be shown without decimals, add
 
 If your battery is represented in a non-standard path in /sys, be sure to
 modify the "path" property accordingly, i.e. pointing to the uevent file on
-your system. The first occurence of %d gets replaced with the battery number,
+your system. The first occurrence of %d gets replaced with the battery number,
 but you can just hard-code a path as well.
 
 It is possible to define a low_threshold that causes the battery text to be
@@ -405,7 +405,7 @@ format_above_threshold.
 
 It is possible to define a degraded_threshold that will color the load
 value yellow in case the CPU average over the last interval is getting
-higher than the configured threshold.  Defaults to 90. The ouput format
+higher than the configured threshold.  Defaults to 90. The output format
 when above degraded threshold can be customized with
 format_above_degraded_threshold.
 
@@ -696,7 +696,7 @@ Put that in some script, say +.bin/my_i3status.sh+ and execute that instead of i
 
 Note that if you want to use the JSON output format (with colors in i3bar), you
 need to use a slightly more complex wrapper script. There are examples in the
-contrib/ folder, see http://code.i3wm.org/i3status/tree/master/contrib
+contrib/ folder, see https://github.com/i3/i3status/tree/master/contrib
 
 == SIGNALS
 
