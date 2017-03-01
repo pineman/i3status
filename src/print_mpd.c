@@ -28,7 +28,9 @@
  */
 #define MPDPRINT_TAG(FUNC_NAME, TAG)                                                                                    \
     int _print_##FUNC_NAME(char* buffer, struct mpd_connection* co, struct mpd_status* status, struct mpd_song* song) { \
-        return sprintf(buffer, "%s", mpd_song_get_tag(song, MPD_TAG_##TAG, 0));                                         \
+        int r = sprintf(buffer, "%s", mpd_song_get_tag(song, MPD_TAG_##TAG, 0));                                        \
+        if (strcmp(buffer, "(null)") == 0) r = -1;                                                                      \
+        return r;                                                                                                       \
     }
 
 /*
@@ -83,13 +85,49 @@ struct {
 
 #undef MPDPRINT
 
+static int
+format_buffer(const char *format, char *buffer, char **outwalk,
+              struct mpd_connection* co, struct mpd_status* status, struct mpd_song* song)
+{
+    const char* f = format;
+    char* b = buffer;
+    int b_inc;
+    while (f[0] != 0) {
+        if (f[0] == '%') {
+            f++;
+            if (f[0] == '%') {
+                b[0] = '%';
+                b++;
+                f++;
+            } else {
+                for (size_t i = 0; i < sizeof(g_mpd_vars) / sizeof(*g_mpd_vars); i++) {
+                    if (strncmp(f, g_mpd_vars[i].name, g_mpd_vars[i].len) == 0) {
+                        b_inc = g_mpd_vars[i].func(b, co, status, song);
+                        if (b_inc == -1) return -1;
+                        b += b_inc;
+                        f += g_mpd_vars[i].len;
+                        break;
+                    }
+                }
+            }
+        } else {
+            b[0] = f[0];
+            b++;
+            f++;
+        }
+    }
+    *outwalk = b;
+    return 0;
+}
+
 /*
  * Main function
  *
  */
 void print_mpd(yajl_gen json_gen, char* buffer,
                const char* format, const char* format_off,
-               const char* host, int port, const char* password) {
+               const char* host, int port, const char* password)
+{
     char* outwalk = buffer;
 
     static struct mpd_connection* co = 0;
@@ -110,7 +148,7 @@ void print_mpd(yajl_gen json_gen, char* buffer,
             START_COLOR("color_bad");
             outwalk += sprintf(buffer, "%s", format_off);
 #ifdef DEBUG
-            fprintf(stderr, "mdp: no connection: %s\n", mpd_connection_get_error_message(co));
+            fprintf(stderr, "mpd: no connection: %s\n", mpd_connection_get_error_message(co));
 #endif
             goto end;
         }
@@ -126,7 +164,7 @@ void print_mpd(yajl_gen json_gen, char* buffer,
         START_COLOR("color_degraded");
         outwalk += sprintf(buffer, "%s", format_off);
 #ifdef DEBUG
-        fprintf(stderr, "mdp: no status\n");
+        fprintf(stderr, "mpd: no status\n");
 #endif
         goto end;
     }
@@ -136,7 +174,7 @@ void print_mpd(yajl_gen json_gen, char* buffer,
         START_COLOR("color_degraded");
         outwalk += sprintf(buffer, "%s", format_off);
 #ifdef DEBUG
-        fprintf(stderr, "mdp: no song\n");
+        fprintf(stderr, "mpd: no song\n");
 #endif
         goto end;
     }
@@ -146,31 +184,15 @@ void print_mpd(yajl_gen json_gen, char* buffer,
     else
         START_COLOR("color_degraded");
 
-    const char* f = format;
-    char* b = buffer;
-    while (f[0] != 0) {
-        if (f[0] == '%') {
-            f++;
-            if (f[0] == '%') {
-                b[0] = '%';
-                b++;
-                f++;
-            } else {
-                for (size_t i = 0; i < sizeof(g_mpd_vars) / sizeof(*g_mpd_vars); i++) {
-                    if (strncmp(f, g_mpd_vars[i].name, g_mpd_vars[i].len) == 0) {
-                        b += g_mpd_vars[i].func(b, co, status, song);
-                        f += g_mpd_vars[i].len;
-                        break;
-                    }
-                }
-            }
-        } else {
-            b[0] = f[0];
-            b++;
-            f++;
+    char *orig, *mod;
+    orig = mod = strdup(format);
+    char *format_try;
+    while ((format_try = strsep(&mod, "|")) != NULL) {
+        if (format_buffer(format_try, buffer, &outwalk, co, status, song) == 0) {
+            break;
         }
     }
-    outwalk = b;
+    free(orig);
 
     mpd_response_finish(co);
 
