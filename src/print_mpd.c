@@ -91,7 +91,7 @@ format_buffer(const char *format, char *buffer, char **outwalk,
 {
     const char* f = format;
     char* b = buffer;
-    int b_inc;
+    int b_inc, ret = 0;
     while (f[0] != 0) {
         if (f[0] == '%') {
             f++;
@@ -103,7 +103,10 @@ format_buffer(const char *format, char *buffer, char **outwalk,
                 for (size_t i = 0; i < sizeof(g_mpd_vars) / sizeof(*g_mpd_vars); i++) {
                     if (strncmp(f, g_mpd_vars[i].name, g_mpd_vars[i].len) == 0) {
                         b_inc = g_mpd_vars[i].func(b, co, status, song);
-                        if (b_inc == -1) return -1;
+                        if (b_inc == -1) {
+                            ret = -1;
+                            goto out;
+                        }
                         b += b_inc;
                         f += g_mpd_vars[i].len;
                         break;
@@ -116,8 +119,10 @@ format_buffer(const char *format, char *buffer, char **outwalk,
             f++;
         }
     }
+
+out:
     *outwalk = b;
-    return 0;
+    return ret;
 }
 
 /*
