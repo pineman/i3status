@@ -53,8 +53,9 @@ MPDPRINT_TAG(genre, GENRE)
  * Print the path (mpd uri) of the current music played
  *
  */
-int _print_path(char* buffer, struct mpd_connection* co, struct mpd_status* status, struct mpd_song* song) {
-    return sprintf(buffer, "%s", mpd_song_get_uri(song));
+int _print_path(char* buffer, struct mpd_connection* co, struct mpd_status* status, struct mpd_song* song)
+{
+    return sprintf(buffer, "%s", basename(mpd_song_get_uri(song)));
 }
 
 /*
