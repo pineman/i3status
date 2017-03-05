@@ -473,6 +473,9 @@ int main(int argc, char *argv[]) {
     cfg_opt_t mpd_opts[] = {
         CFG_STR("format_up", "%title", CFGF_NONE),
         CFG_STR("format_down", " - ", CFGF_NONE),
+        CFG_STR("status_play", "", CFGF_NONE),
+        CFG_STR("status_pause", "", CFGF_NONE),
+        CFG_STR("status_stop", "", CFGF_NONE),
         CFG_STR("host", "127.0.0.1", CFGF_NONE),
         CFG_INT("port", 6600, CFGF_NONE),
         CFG_STR("password", "", CFGF_NONE),
@@ -774,6 +777,9 @@ int main(int argc, char *argv[]) {
                 print_mpd(json_gen, buffer,
                           cfg_getstr(sec, "format_up"),
                           cfg_getstr(sec, "format_down"),
+                          cfg_getstr(sec, "status_play"),
+                          cfg_getstr(sec, "status_pause"),
+                          cfg_getstr(sec, "status_stop"),
                           cfg_getstr(sec, "host"),
                           cfg_getint(sec, "port"),
                           cfg_getstr(sec, "password"));

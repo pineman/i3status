@@ -88,11 +88,14 @@ struct {
 
 static int
 format_buffer(const char *format, char *buffer, char **outwalk,
-              struct mpd_connection* co, struct mpd_status* status, struct mpd_song* song)
+              struct mpd_connection* co, struct mpd_status* status,
+              char *status_str, struct mpd_song* song)
 {
     const char* f = format;
     char* b = buffer;
     int b_inc, ret = 0;
+
+    b += sprintf(buffer, "%s", status_str);
     while (f[0] != 0) {
         if (f[0] == '%') {
             f++;
@@ -132,6 +135,7 @@ out:
  */
 void print_mpd(yajl_gen json_gen, char* buffer,
                const char* format, const char* format_off,
+               char* status_play, char* status_pause, char* status_stop,
                const char* host, int port, const char* password)
 {
     char* outwalk = buffer;
@@ -185,16 +189,26 @@ void print_mpd(yajl_gen json_gen, char* buffer,
         goto end;
     }
 
-    if (mpd_status_get_state(status) == MPD_STATE_PLAY)
+    char *status_str;
+    enum mpd_state mpd_state = mpd_status_get_state(status);
+    if (mpd_state == MPD_STATE_PLAY) {
         START_COLOR("color_good");
-    else
+        status_str = status_play;
+    }
+    else if (mpd_state == MPD_STATE_PAUSE) {
         START_COLOR("color_degraded");
+        status_str = status_pause;
+    }
+    else {
+        START_COLOR("color_bad");
+        status_str = status_stop;
+    }
 
     char *orig, *mod;
     orig = mod = strdup(format);
     char *format_try;
     while ((format_try = strsep(&mod, "|")) != NULL) {
-        if (format_buffer(format_try, buffer, &outwalk, co, status, song) == 0) {
+        if (format_buffer(format_try, buffer, &outwalk, co, status, status_str, song) == 0) {
             break;
         }
     }
