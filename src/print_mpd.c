@@ -202,6 +202,7 @@ void print_mpd(yajl_gen json_gen, char* buffer,
     else {
         START_COLOR("color_bad");
         status_str = status_stop;
+        goto end;
     }
 
     char *orig, *mod;
